@@ -32,6 +32,7 @@ class FO_OT_RenameInputs(Operator):
     def execute(self, context):
         nodes = get_fileOutputNodes(context)
         fileName = bpy.path.basename(bpy.context.blend_data.filepath)
+        fileName = fileName.split('.')[0]
 
         for node in nodes:
             for i in range(len(node.inputs)):
