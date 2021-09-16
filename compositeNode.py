@@ -31,18 +31,24 @@ class FO_OT_RenameInputs(Operator):
 
     def execute(self, context):
         nodes = get_fileOutputNodes(context)
+        fileName = bpy.path.basename(bpy.context.blend_data.filepath)
+
         for node in nodes:
-            node.base_path = "//" + py.path.basename(bpy.context.blend_data.filepath)
             for i in range(len(node.inputs)):
                if(len(node.inputs[i].links) > 0):
                    nodeFromName = node.inputs[i].links[0].from_node.name
+                   if(node.inputs[i].links[0].from_node.label != ''):
+                       nodeFromName = node.inputs[i].links[0].from_node.label
+
                    socketFromName = node.inputs[i].links[0].from_socket.name
-                   node.file_slots[i].path = nodeFromName + '_' + socketFromName
+                   finalSocketName = nodeFromName + '_' + socketFromName
+                   node.file_slots[i].path = finalSocketName + '\\' + fileName + "_" + finalSocketName + "_"
+
         return {'FINISHED'}
 
 def get_fileOutputNodes(context):
     tree = context.scene.node_tree
-    sel = [x for x in tree.nodes if x.bl_idname == "CompositorNodeOutputFile"] 
+    sel = [x for x in tree.nodes if x.bl_idname == "CompositorNodeOutputFile"]
     return sel
 
 
