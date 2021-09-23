@@ -1,33 +1,20 @@
-import sys
+bl_info = {
+    "name": "File Output Node Rename Button",
+    "author": "Charu Tak",
+    "version": (1, 0, 0),
+    "blender": (2, 93, 0),
+    "location": "Compositor's Header",
+    "description": "Renames input sockets for file output node based on the links.",
+    "wiki_url": "",
+    "category": "Node"}
+
 import bpy
-from collections import OrderedDict
-from itertools import repeat
-import pprint
-import pdb
-from bpy.types import Operator, Panel
-from bpy.props import (
-    IntProperty,
-)
-from copy import copy
 
-class FileOutputNode(Panel):
-    bl_label = "File Output Node"
-    bl_space_type = "NODE_EDITOR"
-    bl_region_type = "UI"
-    bl_category = "Compositing Nodes"
-
-    def draw(self, context):
-        if context.active_node is not None:
-            layout = self.layout
-            row = layout.row()
-            col = layout.column
-
-            row = layout.row()
-            row.operator('node.button_rename', text="Rename")
-
-class FO_OT_RenameInputs(Operator):
-    bl_idname = 'node.button_rename'
-    bl_label = 'Rename'
+class FILEOUTPUT_OT_BUTTON(bpy.types.Operator):
+    bl_idname = "fileoutput.rename"
+    bl_label = "Rename"
+    bl_description = "Rename file output node's input sockets."
+    bl_options = {"REGISTER"}
 
     def execute(self, context):
         nodes = get_fileOutputNodes(context)
@@ -47,6 +34,10 @@ class FO_OT_RenameInputs(Operator):
 
         return {'FINISHED'}
 
+
+def draw(self, context):
+    self.layout.operator(FILEOUTPUT_OT_BUTTON.bl_idname)   
+
 def get_fileOutputNodes(context):
     tree = context.scene.node_tree
     sel = [x for x in tree.nodes if x.bl_idname == "CompositorNodeOutputFile"]
@@ -54,17 +45,19 @@ def get_fileOutputNodes(context):
 
 
 classes = [
-     FO_OT_RenameInputs,
-     FileOutputNode
+     FILEOUTPUT_OT_BUTTON,
 ]
 
 def register():
     for c in classes:
         bpy.utils.register_class(c)
+    bpy.types.NODE_HT_header.append(draw)
 
 def unregister():
+    bpy.types.NODE_HT_header.remove(draw)
     for c in classes:
         bpy.utils.unregister_class(c)
+     
 
 if __name__ == "__main__":
     register()
